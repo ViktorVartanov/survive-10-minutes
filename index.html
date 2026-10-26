@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#141a2e">
 <title>SURVIVE 10 MINUTES</title>
+<script id="cgsdk" async src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 <style>
 :root{
   --bg:#141a2e; --ink:#ffffff; --dim:#9fb0d8; --navy:#1d2647; --navy2:#26305a; --line:#3d4d86;
@@ -258,6 +259,7 @@ input[type=range]{width:100%;accent-color:var(--blue);height:28px;touch-action:p
 <svg width="0" height="0" style="position:absolute">
   <defs>
     <symbol id="i-coin" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="#ffc531" stroke="#10183a" stroke-width="2"/><circle cx="10" cy="10" r="5" fill="none" stroke="#e08a00" stroke-width="2"/><rect x="6" y="5" width="2.4" height="3" rx="1" fill="#fff6c8"/></symbol>
+    <symbol id="i-tv" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 9v5l4-2.5z" fill="currentColor"/></symbol>
     <symbol id="i-skull" viewBox="0 0 20 20"><path d="M10 2c4.4 0 7.5 3 7.5 6.8 0 2.3-1.1 3.8-2.6 4.7V17H5.1v-3.5C3.6 12.6 2.5 11.1 2.5 8.8 2.5 5 5.6 2 10 2z" fill="#eef2ff" stroke="#10183a" stroke-width="2"/><circle cx="7" cy="9" r="2" fill="#10183a"/><circle cx="13" cy="9" r="2" fill="#10183a"/></symbol>
   </defs>
 </svg>
@@ -269,7 +271,7 @@ input[type=range]{width:100%;accent-color:var(--blue);height:28px;touch-action:p
       <div class="pill"><svg><use href="#i-coin"/></svg><b id="gold">0</b></div>
       <div class="pill"><svg><use href="#i-skull"/></svg><b id="kills">0</b></div>
     </div>
-    <div class="timer" id="timerBox"><span id="timer">00:00</span><small>цель 10:00</small></div>
+    <div class="timer" id="timerBox"><span id="timer">00:00</span><small id="timerSub">цель 10:00</small></div>
     <button class="pausebtn" data-act="pause" aria-label="Пауза"><span></span><span></span></button>
   </div>
   <div class="slots"><div class="srow" id="wSlots"></div><div class="srow" id="pSlots"></div></div>
@@ -326,6 +328,26 @@ input[type=range]{width:100%;accent-color:var(--blue);height:28px;touch-action:p
   </div>
 </section>
 
+<!-- REVIVE -->
+<section class="screen" id="revive" hidden>
+  <div class="panel">
+    <div class="ribbon red">Второй шанс?</div>
+    <div class="chestStage" style="height:120px"><div class="timer" id="reviveCount" style="font-size:72px">5</div></div>
+    <p class="controls" id="reviveNote">Вернись в бой с половиной здоровья. Враги рядом будут отброшены.</p>
+    <button class="btn gold big" data-act="reviveYes"><svg style="width:24px;height:24px;vertical-align:-5px"><use href="#i-tv"/></svg> Воскреснуть за рекламу</button>
+    <button class="btn gray" data-act="reviveNo">Нет, спасибо</button>
+  </div>
+</section>
+
+<!-- AD DEMO -->
+<section class="screen" id="adDemo" hidden>
+  <div class="panel">
+    <div class="ribbon">Реклама</div>
+    <div class="chestStage" style="height:120px"><div class="timer" id="adCount" style="font-size:72px">2</div></div>
+    <p class="controls">Тестовый режим. На игровом портале здесь покажется реклама.</p>
+  </div>
+</section>
+
 <!-- PAUSE -->
 <section class="screen" id="pause" hidden>
   <div class="panel">
@@ -347,6 +369,7 @@ input[type=range]{width:100%;accent-color:var(--blue);height:28px;touch-action:p
     <div class="togrow"><span>Тряска экрана</span><button class="tog" id="togShake" data-act="tog" data-key="shake" aria-label="Тряска экрана" aria-pressed="true"></button></div>
     <div class="togrow"><span>Числа урона</span><button class="tog" id="togNums" data-act="tog" data-key="numbers" aria-label="Числа урона" aria-pressed="true"></button></div>
     <div class="togrow"><span>Вибрация</span><button class="tog" id="togVibro" data-act="tog" data-key="vibro" aria-label="Вибрация" aria-pressed="true"></button></div>
+    <div class="togrow"><span>Язык</span><div class="seg" id="langSeg"></div></div>
     <div class="togrow"><span>Качество</span><div class="seg" id="qSeg"><button data-act="q" data-v="auto">Авто</button><button data-act="q" data-v="high">Высокое</button><button data-act="q" data-v="low">Экономия</button></div></div>
     <p class="controls" id="qNote"></p>
     <button class="btn red" data-act="reset">Сбросить прогресс</button>
@@ -416,6 +439,7 @@ input[type=range]{width:100%;accent-color:var(--blue);height:28px;touch-action:p
     <div id="overUnlocks"></div>
     <div class="label">Урон по оружию</div>
     <div class="box dmgl" id="overDmg"></div>
+    <button class="btn gold" data-act="dbl" id="dblBtn"><svg style="width:22px;height:22px;vertical-align:-4px"><use href="#i-tv"/></svg> Удвоить золото за рекламу</button>
     <div class="grid2"><button class="btn green big" data-act="restart" id="againBtn">Ещё раз</button><button class="btn big" data-act="menu">Меню</button></div>
   </div>
 </section>
@@ -427,6 +451,10 @@ input[type=range]{width:100%;accent-color:var(--blue);height:28px;touch-action:p
    УТИЛИТЫ
    ================================================================= */
 const TAU = Math.PI * 2, RUN_LEN = 600, SS = 2;
+/* ---------- Языки: русский и английский ---------- */
+let LANG = 'ru';
+const tr = (ru, en) => LANG === 'en' ? en : ru;
+const DICT = {"Кунаи": "Kunai", "Бросает кунай в ближайшего врага": "Throws a kunai at the nearest enemy", "+1 кунай за залп": "+1 kunai per volley", "+1 кунай, больше урона": "+1 kunai, more damage", "+1 кунай": "+1 kunai", "+1 кунай, пробивают насквозь": "+1 kunai, they pierce enemies", "Страж": "Guardian", "Два диска кружат вокруг героя": "Two discs orbit the hero", "+1 диск": "+1 disc", "Шире круг, больше урона": "Wider orbit, more damage", "+1 диск, вращаются быстрее": "+1 disc, faster spin", "Кирпич": "Brick", "Подбрасывает тяжёлый кирпич": "Tosses a heavy brick", "Больше урона": "More damage", "+1 кирпич": "+1 brick", "Бур": "Drill", "Бур рикошетит от краёв экрана": "A drill bounces off the screen edges", "Больше урона, дольше живёт": "More damage, lasts longer", "+1 бур": "+1 drill", "Разрядник": "Zapper", "Молнии бьют по врагам на экране": "Lightning strikes enemies on screen", "+1 молния": "+1 bolt", "+1 молния, больше урона": "+1 bolt, more damage", "Коктейль": "Molotov", "Бутылка оставляет лужу огня": "A bottle leaves a pool of fire", "+1 бутылка": "+1 bottle", "Огонь шире": "Wider fire", "Огонь шире и жарче": "Wider and hotter fire", "Силовое поле": "Force field", "Поле жжёт и замедляет врагов рядом": "Burns and slows nearby enemies", "Поле шире": "Bigger field", "Шире и сильнее": "Bigger and stronger", "Бумеранг": "Boomerang", "Летит к врагу и возвращается": "Flies to an enemy and comes back", "+1 бумеранг": "+1 boomerang", "Больше урона и дальности": "More damage and range", "Дрон": "Drone", "Дрон-напарник стреляет ракетами": "A drone buddy fires rockets", "Стреляет чаще": "Fires more often", "Больше урона и взрыв шире": "More damage, bigger blast", "Лазер": "Laser", "Луч прожигает врагов по линии": "A beam burns enemies in a line", "Луч горит дольше": "Beam lasts longer", "+1 луч": "+1 beam", "Луч толще и сильнее": "Thicker, stronger beam", "Молот": "Hammer", "Молот раскручивается по спирали": "A hammer spins out in a spiral", "+1 молот": "+1 hammer", "Больше урона и размах": "More damage and reach", "Бомбо-дрон": "Bomb drone", "Дрон сбрасывает бомбы на врагов": "A drone drops bombs on enemies", "Бомбит чаще": "Bombs more often", "+1 бомба": "+1 bomb", "Бомбит чаще, +1 бомба": "Bombs more often, +1 bomb", "Духовный сюрикен": "Spirit Shuriken", "Шесть сюрикенов скачут от врага к врагу": "Six shuriken bounce from enemy to enemy", "Защитник": "Defender", "Шесть дисков, мощное отбрасывание, гасят пули": "Six discs, heavy knockback, block bullets", "Гиря": "Kettlebell", "Четыре гири сминают всё на пути": "Four kettlebells crush everything", "Акулий бур": "Shark Drill", "Три бура носятся по экрану без остановки": "Three drills race around nonstop", "Громовой шторм": "Thunderstorm", "Частые молнии, разряд перескакивает дальше": "Frequent bolts that chain further", "Адское пламя": "Inferno", "Огромные долгие лужи огня": "Huge, long-lasting fire pools", "Давящее поле": "Crusher Field", "Широкое поле, сильное замедление и толчки": "Wide field, strong slow and push", "Вихревой бумеранг": "Cyclone Boomerang", "Пять огромных бумерангов": "Five giant boomerangs", "Ракетный рой": "Rocket Swarm", "Два дрона, залпы по три ракеты": "Two drones, three-rocket volleys", "Луч смерти": "Death Ray", "Два вечных луча вращаются вокруг героя": "Two endless beams sweep around the hero", "Сокрушитель": "Earthshaker", "Четыре молота, каждый бьёт ударной волной": "Four hammers, each with a shockwave", "Разрушитель": "Destroyer", "Комбо двух дронов: ракеты и ковровые бомбы": "Two-drone combo: rockets and carpet bombs", "Энергокуб": "Energy Cube", "−8% к перезарядке оружия": "−8% weapon cooldown", "Энергетик": "Energy Drink", "+0.6 здоровья в секунду": "+0.6 HP per second", "Пособие по фитнесу": "Fitness Guide", "+12% к максимуму здоровья": "+12% max HP", "Прицел": "Scope", "+12% к дальности и скорости снарядов": "+12% projectile range and speed", "Мощный патрон": "Power Bullet", "+10% к урону": "+10% damage", "Топливо": "Fuel", "+10% к площади атак": "+10% attack area", "Бронежилет": "Body Armor", "−7% получаемого урона": "−7% damage taken", "Кроссовки": "Sneakers", "+8% к скорости бега": "+8% move speed", "Магнит": "Magnet", "+30% к радиусу сбора": "+30% pickup radius", "Клевер": "Clover", "+5% к шансу двойного урона": "+5% double-damage chance", "Силовые перчатки": "Power Gloves", "+15% к отбрасыванию, +5% к урону": "+15% knockback, +5% damage", "Достигни 15 уровня в забеге": "Reach level 15 in a run", "Продержись 5 минут": "Survive 5 minutes", "Собери 500 золота за все забеги": "Collect 500 gold across runs", "Победи первого босса главы": "Defeat the first boss of a chapter", "Уничтожь 2000 врагов за все забеги": "Defeat 2000 enemies across runs", "Получи любую эволюцию": "Get any evolution", "Победи второго босса главы": "Defeat the second boss of a chapter", "Сила": "Strength", "+8% к урону": "+8% damage", "Живучесть": "Vitality", "+12 к здоровью": "+12 HP", "Ловкость": "Agility", "+3% к скорости бега": "+3% move speed", "Жадность": "Greed", "+15% золота с врагов": "+15% gold from enemies", "Удача": "Luck", "+1 переброс за забег": "+1 reroll per run", "Зомби": "Zombie", "Гончая": "Hound", "Плевун": "Spitter", "Толстяк": "Fatso", "Подрывник": "Bomber", "Нетопырь": "Bat", "Мясник": "The Butcher", "Повелитель мглы": "Lord of Mist", "Ледяной мертвец": "Frozen Dead", "Снежный волк": "Snow Wolf", "Злой снеговик": "Evil Snowman", "Йети": "Yeti", "Ледяной подрывник": "Ice Bomber", "Ледяной нетопырь": "Ice Bat", "Ледяной палач": "Ice Executioner", "Снежная королева": "Snow Queen", "Мёртвый город": "Dead City", "Зомби, гончие, Мясник": "Zombies, hounds, the Butcher", "Ледяной лес": "Frozen Forest", "Враги крепче, золота ×1.5": "Tougher enemies, gold ×1.5", "Ледяная стая!": "Ice swarm!", "Стая нетопырей!": "Bat swarm!", "Летят строем": "Flying in formation", "Элитный враг! С него выпадет сундук": "Elite enemy! It drops a chest", "Босс": "Boss", "Босс повержен!": "Boss defeated!", "Орда!": "Horde!", "Тебя окружают": "You are surrounded", "Стая гончих": "Hound pack", "Не стой на месте": "Keep moving", "Внимание!": "Warning!", "Через 6 секунд — босс": "Boss in 6 seconds", "Толстяки идут": "Here come the fatsos", "Кольцо смыкается": "The ring closes in", "До 10 минут — 30 секунд!": "30 seconds to 10 minutes!", "Держись": "Hold on", "Открыто оружие: ": "Weapon unlocked: ", "Магнит: весь опыт летит к тебе": "Magnet: all XP flies to you", "Оружие": "Weapon", "Пассивка": "Passive", "Жареная ножка": "Roast drumstick", "Восстановить 40% здоровья": "Restore 40% HP", "Еда": "Food", "Мешок золота": "Bag of gold", "+40 золота": "+40 gold", "Золото": "Gold", "Перебросить (": "Reroll (", "Подсказка: оружие 5 ур. + парная пассивка = эволюция из сундука": "Tip: level-5 weapon + its paired passive = evolution from a chest", "Уровень ": "Level ", "Эволюция!": "Evolution!", "Новое: ": "New: ", " золота": " gold", "Добыча из сундука": "Chest loot", "Тройной сундук!": "Triple chest!", "Сундук!": "Chest!", "Выживи 10 минут": "Survive 10 minutes", "Глава 2 · держись 10 минут": "Chapter 2 · survive 10 minutes", "Атака автоматическая": "Attacks are automatic", "<span class=\"lockt\">Пройди главу 1</span>": "<span class=\"lockt\">Beat chapter 1</span>", "Глава 2 «Ледяной лес»": "Chapter 2 “Frozen Forest”", "<span class=\"label\">Урона не нанесено</span>": "<span class=\"label\">No damage dealt</span>", " · уровень ": " · level ", " · убито ": " · kills ", "<span class=\"tag\">Макс.</span>": "<span class=\"tag\">Max</span>", "Закрыто: ": "Locked: ", "Авто": "Auto", "Высокое": "High", "Экономия": "Saver", "Сейчас включена экономия: телефон не тянул эффекты": "Saver mode is on: the device could not keep up", "Эффекты снизятся сами, если игра начнёт тормозить": "Effects are reduced automatically if the game slows down", "Меньше частиц и свечения, ниже разрешение": "Fewer particles and glow, lower resolution", "Все эффекты всегда включены": "All effects always on", "Прогресс сброшен": "Progress reset", "Включён режим экономии: меньше эффектов, выше скорость": "Saver mode on: fewer effects, smoother play", "В бой!": "Fight!", "Веди пальцем по экрану, чтобы бежать": "Drag anywhere to move", "Вернись в бой с половиной здоровья. Враги рядом будут отброшены.": "Return with half HP. Nearby enemies are blown away.", "Вибрация": "Vibration", "Воскреснуть за рекламу": "Revive — watch ad", "Второй шанс?": "Second chance?", "Глава": "Chapter", "Готово": "Done", "Громкость": "Volume", "Ещё раз": "Play again", "Забрать": "Collect", "Задания": "Quests", "Задания на сегодня": "Today’s quests", "Заново": "Restart", "Золото падает с врагов и остаётся у тебя даже после поражения.": "Gold drops from enemies and stays with you even after you lose.", "Золото, прокачка, рекорды и открытия удалятся. Настройки останутся.": "Gold, upgrades, records and unlocks will be deleted. Settings stay.", "Играть": "Play", "Качество": "Quality", "Меню": "Menu", "Музыка": "Music", "Назад": "Back", "Настройки": "Settings", "Нет, спасибо": "No, thanks", "Новый рекорд!": "New record!", "Отмена": "Cancel", "Пассивки": "Passives", "Пауза": "Pause", "Перебросить (1)": "Reroll (1)", "Побед": "10-min runs", "Подготовка": "Get ready", "Поражение": "Defeated", "Прогресс засчитывается в конце каждого забега. Новые задания — каждый день.": "Progress counts at the end of each run. New quests every day.", "Продолжить": "Resume", "Прокачка": "Upgrades", "Прокачка героя": "Hero upgrades", "Реклама": "Advertisement", "Рекорд": "Best", "Сбросить прогресс": "Reset progress", "Сдаться": "Give up", "Справочник": "Codex", "Стартовое оружие": "Starting weapon", "Телефон: веди пальцем в любом месте экрана": "Phone: drag anywhere on the screen", "Тестовый режим. На игровом портале здесь покажется реклама.": "Test mode. On the game portal an ad plays here.", "Тряска экрана": "Screen shake", "Убийств": "Kills", "Удалить": "Delete", "Удвоить золото за рекламу": "Double gold — watch ad", "Уровень": "Level", "Уровень повышен!": "Level up!", "Урон по оружию": "Damage by weapon", "Числа урона": "Damage numbers", "Эволюции · оружие 5 ур. + пассивка → сундук": "Evolutions · level-5 weapon + passive → chest", "Эффекты": "Effects", "или стрелки — бег ·": "or arrows — move ·", "цель 10:00": "goal 10:00", "— выбор": "— choose", "— пауза ·": "— pause ·", "Язык": "Language"};
 const FONT = 'ui-rounded,"SF Pro Rounded","Nunito","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif';
 const els = {};
 const $ = id => els[id] || (els[id] = document.getElementById(id));
@@ -451,7 +479,7 @@ const SAVE_KEY = 'survive10_v2';
 const DEFAULT_SAVE = { gold: 0, best: 0, bestKills: 0, bestLevel: 0, runs: 0, wins: 0, totalKills: 0, totalGold: 0,
   bossKills: { butcher: 0, shade: 0, golem: 0, queen: 0 }, unlocked: [], meta: { atk: 0, hp: 0, spd: 0, greed: 0, reroll: 0 },
   ch2: false, lastCh: 1, lastW: 'kunai', evoCount: 0, daily: { date: '', tasks: [] },
-  settings: { master: .8, music: .5, sfx: .8, shake: true, numbers: true, vibro: true, quality: 'auto' } };
+  settings: { master: .8, music: .5, sfx: .8, shake: true, numbers: true, vibro: true, quality: 'auto', lang: '' } };
 let canStore = true;
 const clone = o => JSON.parse(JSON.stringify(o));
 function merge(base, o) {
@@ -462,9 +490,50 @@ function merge(base, o) {
   }
   return out;
 }
-function loadSave() { try { const r = localStorage.getItem(SAVE_KEY); return r ? merge(DEFAULT_SAVE, JSON.parse(r)) : clone(DEFAULT_SAVE); } catch (e) { canStore = false; return clone(DEFAULT_SAVE); } }
+/* ---------- Реклама и облако: CrazyGames SDK, если игра запущена на портале ---------- */
+const Ads = {
+  sdk: null, env: 'none', busy: false, playing: false, lastMid: 0,
+  async init() {
+    await new Promise(res => {
+      if (window.CrazyGames) return res();
+      const s = document.getElementById('cgsdk'); if (!s) return res();
+      s.addEventListener('load', res); s.addEventListener('error', res); setTimeout(res, 2500);
+    });
+    try { if (window.CrazyGames && window.CrazyGames.SDK) { await window.CrazyGames.SDK.init(); this.env = window.CrazyGames.SDK.environment; if (this.env !== 'disabled') this.sdk = window.CrazyGames.SDK; } } catch (e) { this.sdk = null; }
+  },
+  cloud() { return this.sdk && this.env === 'crazygames' && this.sdk.data; },
+  call(fn) { try { if (this.sdk) fn(this.sdk); } catch (e) { } },
+  setPlaying(on) { if (on === this.playing) return; this.playing = on; this.call(s => on ? s.game.gameplayStart() : s.game.gameplayStop()); },
+  happytime() { this.call(s => s.game.happytime()); },
+  loadingStop() { this.call(s => s.game.loadingStop()); },
+  midgame(done) {
+    const now = Date.now();
+    if (!this.sdk || this.busy || now - this.lastMid < 180000) { done(); return; }
+    this.lastMid = now; this.busy = true; let fin = false;
+    const end = () => { if (fin) return; fin = true; this.busy = false; AU.adMute(false); done(); };
+    try { this.sdk.ad.requestAd('midgame', { adStarted: () => AU.adMute(true), adFinished: end, adError: end }); } catch (e) { end(); }
+  },
+  rewarded(onReward) {
+    if (this.busy) return;
+    if (!this.sdk) { demoAd(onReward); return; }
+    this.busy = true; let fin = false;
+    const end = ok => { if (fin) return; fin = true; this.busy = false; AU.adMute(false); if (ok) onReward(); else toast(tr('Реклама сейчас недоступна, попробуй позже', 'Ad is not available right now, try again later')); };
+    try { this.sdk.ad.requestAd('rewarded', { adStarted: () => AU.adMute(true), adFinished: () => end(true), adError: () => end(false) }); } catch (e) { end(false); }
+  },
+};
+function demoAd(onReward) {
+  Ads.busy = true; AU.adMute(true); const prev = SCREENS.find(id => !$(id).hidden) || null;
+  let n = 2; $('adCount').textContent = n; show('adDemo');
+  const iv = setInterval(() => { n--; $('adCount').textContent = n; if (n <= 0) { clearInterval(iv); Ads.busy = false; AU.adMute(false); show(prev); onReward(); } }, 700);
+}
+function loadSave() {
+  try { const r = Ads.cloud() ? Ads.sdk.data.getItem(SAVE_KEY) : localStorage.getItem(SAVE_KEY); return r ? merge(DEFAULT_SAVE, JSON.parse(r)) : clone(DEFAULT_SAVE); }
+  catch (e) { canStore = false; return clone(DEFAULT_SAVE); }
+}
 let SAVE = loadSave();
-function persist() { if (!canStore) return; try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) { canStore = false; } }
+function persist() {
+  try { const raw = JSON.stringify(SAVE); if (Ads.cloud()) Ads.sdk.data.setItem(SAVE_KEY, raw); else if (canStore) localStorage.setItem(SAVE_KEY, raw); } catch (e) { canStore = false; }
+}
 
 /* =================================================================
    ДАННЫЕ: ОРУЖИЕ, ПАССИВКИ, ЭВОЛЮЦИИ
@@ -995,8 +1064,9 @@ const AU = {
       this.apply();
     } catch (e) { this.c = null; }
   },
-  apply() { if (!this.c) return; const s = SAVE.settings; this.m.gain.value = s.master; this.mu.gain.value = s.music * .5 * (this.ducked ? .35 : 1); this.fx.gain.value = s.sfx; },
+  apply() { if (!this.c) return; const s = SAVE.settings; this.m.gain.value = this.muted ? 0 : s.master; this.mu.gain.value = s.music * .5 * (this.ducked ? .35 : 1); this.fx.gain.value = s.sfx; },
   duck(on) { this.ducked = on; this.apply(); },
+  muted: false, adMute(on) { this.muted = on; if (this.c) this.m.gain.value = on ? 0 : SAVE.settings.master; },
   ok() { return this.c && this.c.state === 'running'; },
   tone(f, dur, type = 'square', vol = .1, f2 = 0, at = 0, dest = null) {
     const c = this.c, t = at || c.currentTime, o = c.createOscillator(), g = c.createGain();
@@ -1077,7 +1147,7 @@ function newRun(chId = 1) {
   return { ch: CHAPTERS.find(c => c.id === chId) || CHAPTERS[0], dmgBy: {}, warns: [], hitstop: 0, eliteKills: 0, startW: 'kunai', time: 0, kills: 0, gold: 0, level: 1, xp: 0, xpNext: xpFor(1), queue: [], weapons: [], passives: {}, porder: [],
     enemies: [], shots: [], ebullets: [], drops: [], zones: [], parts: [], texts: [], rings: [], strikes: [], corpses: [], decals: [],
     player: newPlayer(), spawnAcc: 0, boss: null, cage: null, bossDown: { butcher: false, shade: false }, dmgDealt: 0, dmgTaken: 0,
-    shake: 0, slow: 0, tl: 0, eid: 0, over: false, won: false, newUnlocks: [], combo: 0, comboT: 0, unlockT: 0, endT: 0,
+    shake: 0, slow: 0, tl: 0, eid: 0, over: false, won: false, won10: false, bossN: 0, endlessNext: 630, endlessI: 0, bossScale: 1, revived: false, adGold: false, reviveT: 0, newUnlocks: [], combo: 0, comboT: 0, unlockT: 0, endT: 0,
     hintT: 5, newRecord: false, hurtFlash: 0, timers: [], rerolls: 1 + SAVE.meta.reroll, evolved: [], elites: 0 };
 }
 
@@ -1163,12 +1233,13 @@ function addWeapon(id) { R.weapons.push({ id, lvl: 1, cd: .3, ang: 0, burst: 0, 
 function makeEnemy(type, x, y, elite) {
   const d = ET[type], t = R.time;
   const cm = R.ch.mul;
-  const hpM = d.boss ? 1 : (1 + t / 180 + Math.pow(t / 600, 2) * 2) * cm;
-  const dmgM = d.boss ? 1 : (1 + t / 420) * (1 + (cm - 1) * .4);
+  const ex = t > RUN_LEN ? (t - RUN_LEN) / 60 : 0; // минуты бесконечного режима
+  const hpM = d.boss ? (R.bossScale || 1) : (1 + t / 180 + Math.pow(Math.min(t, RUN_LEN) / 600, 2) * 2) * cm * Math.pow(1.24, ex);
+  const dmgM = d.boss ? 1 + ((R.bossScale || 1) - 1) * .25 : (1 + t / 420) * (1 + (cm - 1) * .4) * Math.pow(1.11, ex);
   const el = !!elite;
   const hp = d.hp * hpM * (el ? 16 : 1);
   return { type, d, x, y, kx: 0, ky: 0, r: d.r * (el ? 1.45 : 1), sc: el ? 1.45 : d.boss ? 1 : 1, hp, maxHp: hp,
-    spd: d.spd * (d.boss ? 1 : rand(.9, 1.1) * (el ? .85 : 1)), dmg: d.dmg * dmgM * (el ? 1.6 : 1), xp: d.xp * (el ? 20 : 1), elite: el,
+    spd: d.spd * (d.boss ? 1 + Math.min(.35, ex * .02) : rand(.9, 1.1) * (el ? .85 : 1) * (1 + Math.min(.6, ex * .035))), dmg: d.dmg * dmgM * (el ? 1.6 : 1), xp: d.xp * (el ? 20 : 1), elite: el,
     flash: 0, dead: false, anim: rand(0, 4), face: 1, cd: rand(1, 2.5), state: 0, st: 0, fuse: -1, gcd: 0, slowT: 0, slowAmt: 0,
     vx: 0, vy: 0, life: 0, mx: 0, my: 0, spdNow: 0, id: ++R.eid };
 }
@@ -1197,7 +1268,7 @@ function spawnRing(type, n, rad) {
 function batWave(n = 16) {
   const a = rand(0, TAU);
   R.warns.push({ a: a + Math.PI, life: 1.6, max: 1.6 });
-  banner(R.ch.id === 2 ? 'Ледяная стая!' : 'Стая нетопырей!', 'Летят строем', true);
+  banner(R.ch.id === 2 ? tr('Ледяная стая!', 'Ice swarm!') : tr('Стая нетопырей!', 'Bat swarm!'), tr('Летят строем', 'Flying in formation'), true);
   later(1.5, () => {
     const p = R.player, vr = viewR(), dx = Math.cos(a), dy = Math.sin(a), px = -dy, py = dx;
     for (let i = 0; i < n && R.enemies.length < MAXE + 60; i++) {
@@ -1210,17 +1281,17 @@ function batWave(n = 16) {
 function spawnElite() {
   const types = spawnTable(R.time).filter(t => t.k !== 'bat' && t.k !== 'bomber');
   const e = spawnOne(pickW(types).k, true); R.elites++;
-  toast('Элитный враг! С него выпадет сундук'); AU.play('warn');
+  toast(tr('Элитный враг! С него выпадет сундук', 'Elite enemy! It drops a chest')); AU.play('warn');
   return e;
 }
-function spawnBoss(type) {
-  const p = R.player;
+function spawnBoss(type, scale = 1) {
+  const p = R.player; R.bossScale = scale;
   for (const e of R.enemies) if (!e.dead) { e.dead = true; burst(e.x, e.y, '#c9b8ff', 5, 160, 4); }
   for (const b of R.ebullets) b.dead = true;
   R.cage = { x: p.x, y: p.y, h: 300, t: 0 };
   const bt = T(type), e = makeEnemy(bt, p.x, p.y - 220); e.st = 2; e.cd = 1.5;
   R.enemies.push(e); R.boss = e; p.inv = Math.max(p.inv, 1.2);
-  banner(ET[bt].name, 'Босс', true); shake(16); AU.play('boss'); flash(); vib(120);
+  banner(ET[bt].name, tr('Босс', 'Boss'), true); shake(16); AU.play('boss'); flash(); vib(120);
 }
 
 /* =================================================================
@@ -1255,7 +1326,7 @@ function killEnemy(e, selfD) {
   AU.play('pop');
   if (d.ai === 'bomber') bomberBlast(e, selfD);
   if (d.boss) {
-    R.bossDown[d.ai] = true; R.boss = null; vib(150);
+    R.bossDown[d.ai] = true; R.bossN++; R.boss = null; vib(150); Ads.happytime();
     SAVE.bossKills[e.type] = (SAVE.bossKills[e.type] || 0) + 1; persist();
     R.slow = .8; shake(26); flash();
     for (let i = 0; i < 3; i++) ring(e.x, e.y, 10, 240 + i * 100, .6 + i * .2, i % 2 ? '#ffd23f' : '#ffffff', 8);
@@ -1263,7 +1334,7 @@ function killEnemy(e, selfD) {
     for (let i = 0; i < 30; i++) drop('coin', e.x + rand(-60, 60), e.y + rand(-60, 60), Math.round(3 * (1 + .15 * SAVE.meta.greed)));
     for (const b of R.ebullets) b.dead = true;
     later(1.2, () => { if (!R.boss) R.cage = null; });
-    banner('Босс повержен!', d.name); AU.play('bossdie');
+    banner(tr('Босс повержен!', 'Boss defeated!'), d.name); AU.play('bossdie');
   }
 }
 function bomberBlast(e, hurts) {
@@ -1279,7 +1350,7 @@ function damagePlayer(raw) {
   const d = Math.max(1, raw * (1 - p.armor));
   p.hp -= d; R.dmgTaken += d; p.inv = .55; p.hurt = .25; R.hurtFlash = .22;
   shake(8); addText(p.x, p.y - 30, '-' + Math.round(d), false, '#ff4d6d'); burst(p.x, p.y, '#ff4d6d', 8, 240, 4); AU.play('hurt'); vib(30); R.hitstop = Math.max(R.hitstop, .04);
-  if (p.hp <= 0) { p.hp = 0; endRun(false); }
+  if (p.hp <= 0) { p.hp = 0; if (!R.revived) offerRevive(); else endRun(); }
 }
 function drop(kind, x, y, v = 1) { if (R.drops.length >= MAXD && kind === 'coin') { const c = R.drops.find(o => o.kind === 'coin'); if (c) { c.v += v; return; } } R.drops.push({ kind, x, y, v, pull: false, sp: 0, t: rand(0, 6), dead: false }); }
 function dropXP(x, y, v) {
@@ -1614,28 +1685,52 @@ function shadeAI(e, dt, nx, ny, d) {
    ================================================================= */
 const TIMELINE = [
   { t: 50, run: () => batWave(14) },
-  { t: 75, run: () => { banner('Орда!', 'Тебя окружают', true); spawnRing('walker', 18, 420); } },
+  { t: 75, run: () => { banner(tr('Орда!', 'Horde!'), tr('Тебя окружают', 'You are surrounded'), true); spawnRing('walker', 18, 420); } },
   { t: 60, run: spawnElite },
-  { t: 150, run: () => { banner('Стая гончих', 'Не стой на месте', true); spawnRing('runner', 22, 450); } },
+  { t: 150, run: () => { banner(tr('Стая гончих', 'Hound pack'), tr('Не стой на месте', 'Keep moving'), true); spawnRing('runner', 22, 450); } },
   { t: 180, run: spawnElite },
   { t: 205, run: () => batWave(18) },
-  { t: 234, run: () => banner('Внимание!', 'Через 6 секунд — босс', true) },
+  { t: 234, run: () => banner(tr('Внимание!', 'Warning!'), tr('Через 6 секунд — босс', 'Boss in 6 seconds'), true) },
   { t: 240, run: () => spawnBoss('butcher') },
   { t: 330, run: spawnElite },
   { t: 360, run: () => batWave(22) },
-  { t: 390, run: () => { banner('Толстяки идут', 'Кольцо смыкается', true); spawnRing('fatty', 12, 460); } },
+  { t: 390, run: () => { banner(tr('Толстяки идут', 'Here come the fatsos'), tr('Кольцо смыкается', 'The ring closes in'), true); spawnRing('fatty', 12, 460); } },
   { t: 420, run: spawnElite },
-  { t: 474, run: () => banner('Внимание!', 'Через 6 секунд — босс', true) },
+  { t: 474, run: () => banner(tr('Внимание!', 'Warning!'), tr('Через 6 секунд — босс', 'Boss in 6 seconds'), true) },
   { t: 480, run: () => spawnBoss('shade') },
   { t: 525, run: () => batWave(26) },
   { t: 545, run: spawnElite },
-  { t: 570, run: () => { banner('Последние 30 секунд!', 'Держись', true); spawnRing('walker', 26, 400); spawnRing('runner', 16, 480); } },
+  { t: 570, run: () => { banner(tr('До 10 минут — 30 секунд!', '30 seconds to 10 minutes!'), tr('Держись', 'Hold on'), true); spawnRing('walker', 26, 400); spawnRing('runner', 16, 480); } },
 ];
-const spawnRate = t => .9 + t * .014 + (t > 570 ? 3 : 0);
+const spawnRate = t => .9 + t * .014 + (t > 570 ? 3 : 0) + (t > RUN_LEN ? 2.5 + (t - RUN_LEN) * .012 : 0);
+function reach10() {
+  const r = R, p = r.player; r.won10 = true; SAVE.wins++;
+  if (r.ch.id === 1 && !SAVE.ch2) { SAVE.ch2 = true; r.newCh2 = true; }
+  persist();
+  drop('chest', p.x + 60, p.y); for (let i = 0; i < 20; i++) drop('coin', p.x + rand(-90, 90), p.y + rand(-90, 90), Math.round(3 * r.ch.gold));
+  for (let i = 0; i < 4; i++) ring(p.x, p.y, 10, 300 + i * 120, .8 + i * .25, ['#3fa9ff', '#ffc531', '#ff4b55', '#62d84e'][i], 8);
+  banner(tr('Ты выжил 10 минут!', 'You survived 10 minutes!'), tr('Дальше — бесконечный режим', 'Endless mode begins'));
+  AU.play('win'); flash(); vib(120); Ads.happytime();
+}
+// После 10:00 события идут каждые 30 секунд, каждый шестой — босс, и каждый следующий босс сильнее
+function endlessEvent() {
+  const r = R, k = r.endlessI++, kind = k % 6, lvl = Math.floor(k / 6);
+  r.endlessNext = r.time + 30;
+  if (kind === 0) batWave(22 + lvl * 4);
+  else if (kind === 1) { banner(tr('Орда!', 'Horde!'), tr('Они не кончаются', 'They never stop'), true); spawnRing('walker', 24 + lvl * 3, 400); spawnRing('runner', 14 + lvl * 2, 480); }
+  else if (kind === 2) { spawnElite(); if (lvl >= 1) spawnElite(); }
+  else if (kind === 3) { banner(tr('Тяжёлая волна', 'Heavy wave'), tr('Кольцо смыкается', 'The ring closes in'), true); spawnRing('fatty', 10 + lvl * 2, 460); spawnRing('bomber', 8 + lvl * 2, 380); }
+  else if (kind === 4) { spawnElite(); batWave(18 + lvl * 4); }
+  else {
+    const type = lvl % 2 ? 'shade' : 'butcher', scale = Math.pow(1.7, lvl + 1) * (type === 'butcher' ? 2.2 : 1.3);
+    banner(tr('Внимание!', 'Warning!'), tr('Через 6 секунд — босс', 'Boss in 6 seconds'), true);
+    later(6, () => { if (!R.over && !R.boss) spawnBoss(type, scale); });
+  }
+}
 function checkUnlocks() {
   for (const id in WEAPONS) {
     const u = WEAPONS[id].unlock; if (!u || SAVE.unlocked.includes(id)) continue;
-    if (UNLOCKS[u].test(R)) { SAVE.unlocked.push(id); R.newUnlocks.push(id); persist(); toast('Открыто оружие: ' + WEAPONS[id].name); AU.play('unlock'); }
+    if (UNLOCKS[u].test(R)) { SAVE.unlocked.push(id); R.newUnlocks.push(id); persist(); toast(tr('Открыто оружие: ', 'Weapon unlocked: ') + WEAPONS[id].name); AU.play('unlock'); }
   }
 }
 
@@ -1736,7 +1831,8 @@ function update(dt) {
     const table = spawnTable(r.time);
     while (r.spawnAcc >= 1) { if (r.enemies.length >= MAXE) { r.spawnAcc = Math.min(r.spawnAcc, 1); break; } r.spawnAcc -= 1; spawnOne(pickW(table).k); }
   }
-  if (r.time >= RUN_LEN && !r.over) endRun(true);
+  if (r.time >= RUN_LEN && !r.won10 && !r.over) reach10();
+  if (r.won10 && !r.boss && r.time >= r.endlessNext) endlessEvent();
 }
 function collect(g) {
   const r = R, p = r.player; g.dead = true;
@@ -1744,7 +1840,7 @@ function collect(g) {
     case 'xp': addXP(g.v); r.combo++; r.comboT = .45; AU.play('xp', 600 + Math.min(r.combo, 24) * 30); break;
     case 'coin': r.gold += g.v; AU.play('coin'); break;
     case 'meat': heal(p.maxHp * .3, true); AU.play('heal'); burst(p.x, p.y, '#7dff6a', 12, 200, 4); break;
-    case 'magnet': for (const o of r.drops) if (o.kind === 'xp' || o.kind === 'coin') o.pull = true; AU.play('coin'); toast('Магнит: весь опыт летит к тебе'); break;
+    case 'magnet': for (const o of r.drops) if (o.kind === 'xp' || o.kind === 'coin') o.pull = true; AU.play('coin'); toast(tr('Магнит: весь опыт летит к тебе', 'Magnet: all XP flies to you')); break;
     case 'bomb': {
       flash(); shake(20); AU.play('bomb'); vib(80); DMG_SRC = 'other';
       for (const e of r.enemies) { if (e.dead) continue; if (e.x > view.x0 - 40 && e.x < view.x1 + 40 && e.y > view.y0 - 40 && e.y < view.y1 + 40) { if (e.d.boss || e.elite) hurtEnemy(e, 400, false, 0, 0, 0); else killEnemy(e, false); } }
@@ -1791,32 +1887,32 @@ function optInfo(o) {
   if (o.t === 'w') {
     const W_ = WEAPONS[o.id], w = getW(o.id), cur = w ? w.lvl : 0;
     const combo = COMBOS.find(c => c.a === o.id || c.b === o.id), other = combo ? (combo.a === o.id ? combo.b : combo.a) : null;
-    const ev = W_.partner ? { icon: ICON[W_.partner], text: 'Эволюция с «' + PASSIVES[W_.partner].name + '»' } : null;
-    const ev2 = combo ? { icon: ICON[other], text: 'Комбо с «' + WEAPONS[other].name + '» → ' + EVOS[combo.to].name } : null;
-    return { icon: ICON[o.id], name: W_.name, cur, isNew: !w, desc: W_.lv[cur], tag: 'Оружие', ev: o.id === 'droneB' ? ev2 : ev, ev2: o.id === 'drone' ? ev2 : null };
+    const ev = W_.partner ? { icon: ICON[W_.partner], text: tr('Эволюция с «' + PASSIVES[W_.partner].name + '»', 'Evolves with ' + PASSIVES[W_.partner].name) } : null;
+    const ev2 = combo ? { icon: ICON[other], text: tr('Комбо с «' + WEAPONS[other].name + '» → ', 'Combo with ' + WEAPONS[other].name + ' → ') + EVOS[combo.to].name } : null;
+    return { icon: ICON[o.id], name: W_.name, cur, isNew: !w, desc: W_.lv[cur], tag: tr('Оружие', 'Weapon'), ev: o.id === 'droneB' ? ev2 : ev, ev2: o.id === 'drone' ? ev2 : null };
   }
-  if (o.t === 'p') { const P = PASSIVES[o.id], cur = R.passives[o.id] || 0, wid = PARTNER_OF[o.id]; return { icon: ICON[o.id], name: P.name, cur, isNew: !cur, desc: P.desc, tag: 'Пассивка', ev: wid ? { icon: ICON[wid], text: 'Усиливает эволюцию «' + WEAPONS[wid].name + '»' } : null }; }
-  if (o.t === 'meat') return { icon: ICON.meat, name: 'Жареная ножка', cur: -1, isNew: false, desc: 'Восстановить 40% здоровья', tag: 'Еда' };
-  return { icon: ICON.gold, name: 'Мешок золота', cur: -1, isNew: false, desc: '+40 золота', tag: 'Золото' };
+  if (o.t === 'p') { const P = PASSIVES[o.id], cur = R.passives[o.id] || 0, wid = PARTNER_OF[o.id]; return { icon: ICON[o.id], name: P.name, cur, isNew: !cur, desc: P.desc, tag: tr('Пассивка', 'Passive'), ev: wid ? { icon: ICON[wid], text: tr('Усиливает эволюцию «' + WEAPONS[wid].name + '»', 'Evolves ' + WEAPONS[wid].name) } : null }; }
+  if (o.t === 'meat') return { icon: ICON.meat, name: tr('Жареная ножка', 'Roast drumstick'), cur: -1, isNew: false, desc: tr('Восстановить 40% здоровья', 'Restore 40% HP'), tag: tr('Еда', 'Food') };
+  return { icon: ICON.gold, name: tr('Мешок золота', 'Bag of gold'), cur: -1, isNew: false, desc: tr('+40 золота', '+40 gold'), tag: tr('Золото', 'Gold') };
 }
 function starsHTML(cur) { let s = '<div class="stars">'; for (let i = 0; i < 5; i++) s += `<i class="${i < cur ? 'on' : i === cur ? 'nx' : ''}"></i>`; return s + '</div>'; }
 function cardHTML(o, i) {
   const f = optInfo(o);
-  return `<button class="card ${f.isNew ? 'new' : ''}" data-act="pick" data-i="${i}"><img class="ic" src="${f.icon}" alt=""><div><div class="top"><span class="nm">${esc(f.name)}</span>${f.isNew ? `<span class="tag ${o.t === 'p' ? 'p' : ''}">Новое</span>` : ''}</div>${f.cur >= 0 ? starsHTML(f.cur) : ''}<div class="ds">${esc(f.desc)}</div>${f.ev ? `<div class="ev"><img src="${f.ev.icon}" alt="">${esc(f.ev.text)}</div>` : ''}${f.ev2 ? `<div class="ev"><img src="${f.ev2.icon}" alt="">${esc(f.ev2.text)}</div>` : ''}</div></button>`;
+  return `<button class="card ${f.isNew ? 'new' : ''}" data-act="pick" data-i="${i}"><img class="ic" src="${f.icon}" alt=""><div><div class="top"><span class="nm">${esc(f.name)}</span>${f.isNew ? `<span class="tag ${o.t === 'p' ? 'p' : ''}">${tr('Новое', 'New')}</span>` : ''}</div>${f.cur >= 0 ? starsHTML(f.cur) : ''}<div class="ds">${esc(f.desc)}</div>${f.ev ? `<div class="ev"><img src="${f.ev.icon}" alt="">${esc(f.ev.text)}</div>` : ''}${f.ev2 ? `<div class="ev"><img src="${f.ev2.icon}" alt="">${esc(f.ev2.text)}</div>` : ''}</div></button>`;
 }
 function renderLevelUp() {
   $('luCards').innerHTML = curOpts.map(cardHTML).join('');
-  $('rerollBtn').textContent = 'Перебросить (' + R.rerolls + ')'; $('rerollBtn').disabled = R.rerolls <= 0;
+  $('rerollBtn').textContent = tr('Перебросить (', 'Reroll (') + R.rerolls + ')'; $('rerollBtn').disabled = R.rerolls <= 0;
   const ev = evoReady();
-  $('luNote').hidden = !ev; if (ev) $('luNote').textContent = 'Эволюция «' + WEAPONS[ev.id].name + '» готова: открой сундук элиты или босса';
-  if (!ev && R.time < 40 && R.level <= 3) { $('luNote').hidden = false; $('luNote').textContent = 'Подсказка: оружие 5 ур. + парная пассивка = эволюция из сундука'; }
+  $('luNote').hidden = !ev; if (ev) $('luNote').textContent = tr('Эволюция «' + WEAPONS[ev.id].name + '» готова: открой сундук элиты или босса', WEAPONS[ev.id].name + ' is ready to evolve: open a chest from an elite or boss');
+  if (!ev && R.time < 40 && R.level <= 3) { $('luNote').hidden = false; $('luNote').textContent = tr('Подсказка: оружие 5 ур. + парная пассивка = эволюция из сундука', 'Tip: level-5 weapon + its paired passive = evolution from a chest'); }
 }
 function openLevelUp() {
   const item = R.queue[0]; if (!item) return;
   if (item.kind === 'chest') { R.queue.shift(); openChest(); return; }
   R.queue.shift();
   mode = 'levelup'; joy.id = null; joy.dx = joy.dy = 0;
-  curOpts = rollOptions(); $('luTitle').textContent = 'Уровень ' + item.lvl + '!';
+  curOpts = rollOptions(); $('luTitle').textContent = tr('Уровень ', 'Level ') + item.lvl + '!';
   renderLevelUp(); luOpenedAt = performance.now();
   show('levelup'); AU.play('levelup'); AU.duck(true);
 }
@@ -1847,16 +1943,16 @@ function openChest() {
     if (combo) R.weapons = R.weapons.filter(w => w.id !== combo.b);
     R.dmgBy[evo] = (R.dmgBy[evo] || 0) + (R.dmgBy[from] || 0) + (combo ? R.dmgBy[combo.b] || 0 : 0); delete R.dmgBy[from]; if (combo) delete R.dmgBy[combo.b];
     ev.id = evo; ev.lvl = 6; ev.cd = .2; ev.dr = null; ev.drB = null; ev.beams = null; R.evolved.push(evo); vib(100);
-    rewards.push({ evo: true, icon: ICON[evo], name: EVOS[evo].name, desc: 'Эволюция «' + WEAPONS[from].name + '»: ' + EVOS[evo].desc });
-    $('chestTitle').textContent = 'Эволюция!'; AU.play('evo');
+    rewards.push({ evo: true, icon: ICON[evo], name: EVOS[evo].name, desc: tr('Эволюция «' + WEAPONS[from].name + '»: ', WEAPONS[from].name + ' evolved: ') + EVOS[evo].desc }); Ads.happytime();
+    $('chestTitle').textContent = tr('Эволюция!', 'Evolution!'); AU.play('evo');
   } else {
     const n = Math.random() < .25 ? 3 : 1, taken = [];
     for (let i = 0; i < n; i++) {
       const o = rollOptions(taken)[0]; taken.push(o.t + o.id); const f = optInfo(o); applyOpt(o);
-      rewards.push({ icon: f.icon, name: f.name, desc: o.t === 'w' || o.t === 'p' ? (f.isNew ? 'Новое: ' : 'Уровень ' + (f.cur + 1) + ': ') + f.desc : f.desc });
+      rewards.push({ icon: f.icon, name: f.name, desc: o.t === 'w' || o.t === 'p' ? (f.isNew ? tr('Новое: ', 'New: ') : tr('Уровень ', 'Level ') + (f.cur + 1) + ': ') + f.desc : f.desc });
     }
-    const g = Math.round(rint(15, 30) * R.ch.gold); R.gold += g; rewards.push({ icon: ICON.gold, name: '+' + g + ' золота', desc: 'Добыча из сундука', gold: true });
-    $('chestTitle').textContent = n === 3 ? 'Тройной сундук!' : 'Сундук!'; AU.play('chest');
+    const g = Math.round(rint(15, 30) * R.ch.gold); R.gold += g; rewards.push({ icon: ICON.gold, name: '+' + g + tr(' золота', ' gold'), desc: tr('Добыча из сундука', 'Chest loot'), gold: true });
+    $('chestTitle').textContent = n === 3 ? tr('Тройной сундук!', 'Triple chest!') : tr('Сундук!', 'Chest!'); AU.play('chest');
   }
   R.lastChest = rewards;
   $('chestImg').src = ICON.chestBig;
@@ -1895,29 +1991,28 @@ function startRun(chId, wId) {
   for (const k in hud) delete hud[k];
   show(null); $('hud').hidden = false; $('bossBox').hidden = true; $('hint').hidden = !isTouch;
   last = performance.now(); AU.duck(false); AU.musicStart();
-  banner(R.ch.id === 2 ? 'Ледяной лес' : 'Выживи 10 минут', R.ch.id === 2 ? 'Глава 2 · держись 10 минут' : 'Атака автоматическая');
+  banner(R.ch.id === 2 ? tr('Ледяной лес', 'Frozen Forest') : tr('Выживи 10 минут', 'Survive 10 minutes'), R.ch.id === 2 ? tr('Глава 2 · держись 10 минут', 'Chapter 2 · survive 10 minutes') : tr('Атака автоматическая', 'Attacks are automatic'));
 }
 function finishStats(won) {
   const r = R; checkUnlocks();
   const g = Math.round(r.gold); SAVE.gold += g; SAVE.totalGold += g;
   SAVE.runs++; SAVE.totalKills += r.kills;
-  r.newRecord = r.time > SAVE.best + .01; if (r.newRecord) SAVE.best = Math.min(RUN_LEN, r.time);
+  r.newRecord = r.time > SAVE.best + .01; if (r.newRecord) { SAVE.best = r.time; Ads.happytime(); }
   SAVE.bestKills = Math.max(SAVE.bestKills, r.kills); SAVE.bestLevel = Math.max(SAVE.bestLevel, r.level);
-  if (won) SAVE.wins++;
   SAVE.evoCount += r.evolved.length;
-  if (r.ch.id === 1 && (won || r.bossDown.shade) && !SAVE.ch2) { SAVE.ch2 = true; r.newCh2 = true; }
+  if (r.ch.id === 1 && r.bossDown.shade && !SAVE.ch2) { SAVE.ch2 = true; r.newCh2 = true; }
   dailyProgress(r, won);
   persist();
 }
 /* ---------- Ежедневные задания ---------- */
 const TASKS = [
-  { id: 'kills', text: n => `Убей ${n} врагов`, goals: [300, 600, 1000], reward: 60 },
-  { id: 'survive', text: n => `Продержись ${fmtT(n)} за один забег`, goals: [180, 300, 420], reward: 70 },
-  { id: 'gold', text: n => `Собери ${n} золота`, goals: [60, 120, 200], reward: 50 },
-  { id: 'boss', text: n => `Победи боссов: ${n}`, goals: [1, 2], reward: 90 },
-  { id: 'elite', text: n => `Убей элитных врагов: ${n}`, goals: [2, 4], reward: 60 },
-  { id: 'evo', text: n => `Получи эволюций: ${n}`, goals: [1, 2], reward: 80 },
-  { id: 'level', text: n => `Достигни ${n} уровня`, goals: [15, 25], reward: 60 },
+  { id: 'kills', text: n => tr(`Убей ${n} врагов`, `Kill ${n} enemies`), goals: [300, 600, 1000], reward: 60 },
+  { id: 'survive', text: n => tr(`Продержись ${fmtT(n)} за один забег`, `Survive ${fmtT(n)} in one run`), goals: [180, 300, 420], reward: 70 },
+  { id: 'gold', text: n => tr(`Собери ${n} золота`, `Collect ${n} gold`), goals: [60, 120, 200], reward: 50 },
+  { id: 'boss', text: n => tr(`Победи боссов: ${n}`, `Defeat bosses: ${n}`), goals: [1, 2], reward: 90 },
+  { id: 'elite', text: n => tr(`Убей элитных врагов: ${n}`, `Kill elite enemies: ${n}`), goals: [2, 4], reward: 60 },
+  { id: 'evo', text: n => tr(`Получи эволюций: ${n}`, `Get evolutions: ${n}`), goals: [1, 2], reward: 80 },
+  { id: 'level', text: n => tr(`Достигни ${n} уровня`, `Reach level ${n}`), goals: [15, 25], reward: 60 },
 ];
 function todayKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function ensureDaily() {
@@ -1929,7 +2024,7 @@ function ensureDaily() {
 }
 function dailyProgress(r, won) {
   ensureDaily();
-  const add = { kills: r.kills, gold: Math.round(r.gold), boss: (r.bossDown.butcher ? 1 : 0) + (r.bossDown.shade ? 1 : 0), elite: r.eliteKills, evo: r.evolved.length };
+  const add = { kills: r.kills, gold: Math.round(r.gold), boss: r.bossN, elite: r.eliteKills, evo: r.evolved.length };
   for (const t of SAVE.daily.tasks) {
     if (t.id === 'survive') t.prog = Math.max(t.prog, Math.floor(r.time));
     else if (t.id === 'level') t.prog = Math.max(t.prog, r.level);
@@ -1941,55 +2036,70 @@ function claimDaily(i) { ensureDaily(); const t = SAVE.daily.tasks[i]; if (!t ||
 function renderDaily() {
   ensureDaily();
   $('dailyList').innerHTML = SAVE.daily.tasks.map((t, i) => { const T_ = TASKS.find(x => x.id === t.id), done = t.prog >= t.goal, pr = t.id === 'survive' ? fmtT(t.prog) + ' / ' + fmtT(t.goal) : t.prog + ' / ' + t.goal;
-    return `<div class="task ${t.claimed ? 'done' : ''}"><div><b>${esc(T_.text(t.goal))}</b><div class="bar"><i style="width:${Math.round(t.prog / t.goal * 100)}%"></i></div><div class="pr">${pr} · награда ${t.reward} золота</div></div>${t.claimed ? '<span class="tag">Готово</span>' : `<button class="btn gold buy" data-act="claim" data-i="${i}" ${done ? '' : 'disabled'}><svg><use href="#i-coin"/></svg>${t.reward}</button>`}</div>`; }).join('');
+    return `<div class="task ${t.claimed ? 'done' : ''}"><div><b>${esc(T_.text(t.goal))}</b><div class="bar"><i style="width:${Math.round(t.prog / t.goal * 100)}%"></i></div><div class="pr">${pr} · ${tr('награда', 'reward')} ${t.reward} ${tr('золота', 'gold')}</div></div>${t.claimed ? '<span class="tag">' + tr('Готово', 'Done') + '</span>' : `<button class="btn gold buy" data-act="claim" data-i="${i}" ${done ? '' : 'disabled'}><svg><use href="#i-coin"/></svg>${t.reward}</button>`}</div>`; }).join('');
 }
 function dailyClaimable() { ensureDaily(); return SAVE.daily.tasks.filter(t => !t.claimed && t.prog >= t.goal).length; }
 /* ---------- Подготовка к забегу ---------- */
 let prepCh = SAVE.ch2 ? (SAVE.lastCh || 1) : 1, prepW = SAVE.lastW || 'kunai';
 function renderPrep() {
   if (!SAVE.ch2) prepCh = 1; if (!wUnlocked(prepW)) prepW = 'kunai';
-  $('prepCh').innerHTML = CHAPTERS.map(c => { const locked = c.id === 2 && !SAVE.ch2; return `<button class="chc c${c.id} ${prepCh === c.id ? 'sel' : ''}" data-act="pch" data-id="${c.id}" ${locked ? 'disabled' : ''}>${locked ? '<span class="lockt">Пройди главу 1</span>' : ''}<b>${c.id}. ${esc(c.name)}</b><span>${esc(c.desc)}</span></button>`; }).join('');
+  $('prepCh').innerHTML = CHAPTERS.map(c => { const locked = c.id === 2 && !SAVE.ch2; return `<button class="chc c${c.id} ${prepCh === c.id ? 'sel' : ''}" data-act="pch" data-id="${c.id}" ${locked ? 'disabled' : ''}>${locked ? tr('<span class="lockt">Пройди главу 1</span>', '<span class="lockt">Beat chapter 1</span>') : ''}<b>${c.id}. ${esc(c.name)}</b><span>${esc(c.desc)}</span></button>`; }).join('');
   $('prepW').innerHTML = Object.keys(WEAPONS).map(id => { const ok = wUnlocked(id); return `<button class="wp ${prepW === id ? 'sel' : ''}" data-act="pw" data-id="${id}" ${ok ? '' : 'disabled'} title="${esc(ok ? WEAPONS[id].lv[0] : UNLOCKS[WEAPONS[id].unlock].text)}"><img src="${ICON[id]}" alt="">${esc(WEAPONS[id].name)}</button>`; }).join('');
 }
-function endRun(won) {
+function endRun() {
   const r = R; if (!r || r.over) return;
-  r.over = true; r.won = won; finishStats(won);
-  mode = 'dying'; r.endT = won ? 2.2 : 1.5; joy.id = null;
+  r.over = true; r.won = false; finishStats(r.won10);
+  mode = 'dying'; r.endT = 1.5; joy.id = null; show(null);
   const p = r.player;
-  if (won) { for (const e of r.enemies) if (!e.dead) { burst(e.x, e.y, '#ffffff', 4, 200, 4); e.dead = true; } for (const b of r.ebullets) b.dead = true; for (let i = 0; i < 4; i++) ring(p.x, p.y, 10, 300 + i * 120, .8 + i * .25, ['#3fa9ff', '#ffc531', '#ff4b55', '#62d84e'][i], 8); banner('Ты выжил!', '10 минут позади'); AU.play('win'); flash(); }
-  else { burst(p.x, p.y, '#f08a24', 40, 380, 6); burst(p.x, p.y, '#ffffff', 20, 300, 4); ring(p.x, p.y, 10, 200, .6, '#ff4b55', 8); shake(22); AU.play('die'); }
+  burst(p.x, p.y, '#f08a24', 40, 380, 6); burst(p.x, p.y, '#ffffff', 20, 300, 4); ring(p.x, p.y, 10, 200, .6, '#ff4b55', 8); shake(22); AU.play('die');
   AU.musicStop();
 }
+/* ---------- Второй шанс за рекламу ---------- */
+function offerRevive() {
+  mode = 'revive'; R.reviveT = 6; joy.id = null; joy.dx = joy.dy = 0; keys.clear();
+  $('reviveCount').textContent = '6'; show('revive'); AU.duck(true);
+}
+function doRevive() {
+  const r = R, p = r.player; if (!r || r.over) return;
+  r.revived = true; p.hp = p.maxHp * .5; p.inv = 3;
+  for (const e of r.enemies) if (!e.dead && !e.d.boss && !e.elite && dist2(e.x, e.y, p.x, p.y) < 360 * 360) { e.dead = true; burst(e.x, e.y, '#ffffff', 4, 200, 4); }
+  for (const e of r.enemies) if (!e.dead && (e.d.boss || e.elite)) { const dd = Math.hypot(e.x - p.x, e.y - p.y) || 1; e.kx += (e.x - p.x) / dd * 900; e.ky += (e.y - p.y) / dd * 900; }
+  for (const b of r.ebullets) b.dead = true;
+  for (let i = 0; i < 3; i++) ring(p.x, p.y, 10, 260 + i * 90, .6 + i * .15, '#ffc531', 8);
+  flash(); AU.play('evo'); show(null); mode = 'play'; AU.duck(false); last = performance.now();
+  toast(tr('Второй шанс! Не упусти его', 'Second chance! Make it count'));
+}
+function declineRevive() { if (mode !== 'revive') return; endRun(); }
 function buildIcons_(r) { return r.weapons.map(w => `<img src="${ICON[w.id]}" alt="" title="${esc((WEAPONS[w.id] || EVOS[w.id]).name)}">`).join('') + r.porder.map(id => `<img src="${ICON[id]}" alt="" title="${esc(PASSIVES[id].name)}">`).join(''); }
 function showOver() {
   const r = R; mode = 'over'; $('hud').hidden = true;
-  $('overTitle').textContent = r.won ? 'Победа!' : 'Поражение'; $('overTitle').className = 'ribbon ' + (r.won ? 'green' : 'red');
-  $('overSub').textContent = r.won ? 'Все 10 минут на арене' : 'Продержался ' + fmtT(r.time) + ' из 10:00';
+  $('overTitle').textContent = r.won10 ? tr('Легенда арены!', 'Arena legend!') : tr('Поражение', 'Defeated'); $('overTitle').className = 'ribbon ' + (r.won10 ? 'green' : 'red');
+  $('overSub').textContent = tr('Продержался ', 'Survived ') + fmtT(r.time) + (r.won10 ? tr(' · бесконечный режим', ' · endless mode') : tr(' из 10:00', ' of 10:00'));
   $('overGold').textContent = '+' + Math.round(r.gold); $('overRecord').hidden = !r.newRecord;
-  const bosses = (r.bossDown.butcher ? 1 : 0) + (r.bossDown.shade ? 1 : 0);
-  const st = [['Время', fmtT(r.time)], ['Уровень', r.level], ['Убито', r.kills], ['Урон', fmtN(r.dmgDealt)], ['Эволюций', r.evolved.length], ['Боссы', bosses + ' / 2']];
+  $('dblBtn').hidden = r.adGold || Math.round(r.gold) < 5;
+  const st = [[tr('Время', 'Time'), fmtT(r.time)], [tr('Уровень', 'Level'), r.level], [tr('Убито', 'Kills'), r.kills], [tr('Урон', 'Damage'), fmtN(r.dmgDealt)], [tr('Эволюций', 'Evolutions'), r.evolved.length], [tr('Боссы', 'Bosses'), r.bossN]];
   $('overStats').innerHTML = st.map(([k, v]) => `<div class="st"><b>${esc(v)}</b><span>${k}</span></div>`).join('');
-  const un = r.newUnlocks.map(id => esc(WEAPONS[id].name)); if (r.newCh2) un.push('Глава 2 «Ледяной лес»');
-  $('overUnlocks').innerHTML = un.length ? `<div class="unl">Открыто навсегда: ${un.join(', ')}</div>` : '';
+  const un = r.newUnlocks.map(id => esc(WEAPONS[id].name)); if (r.newCh2) un.push(tr('Глава 2 «Ледяной лес»', 'Chapter 2 “Frozen Forest”'));
+  $('overUnlocks').innerHTML = un.length ? `<div class="unl">${tr('Открыто навсегда', 'Unlocked forever')}: ${un.join(', ')}</div>` : '';
   const rows = Object.entries(r.dmgBy).filter(([k, v]) => v > 0 && (WEAPONS[k] || EVOS[k])).sort((a, b) => b[1] - a[1]), top = rows.length ? rows[0][1] : 1;
-  $('overDmg').innerHTML = rows.length ? rows.map(([k, v]) => `<div class="dmr"><img src="${ICON[k]}" alt=""><div>${esc((WEAPONS[k] || EVOS[k]).name)}<div class="bar"><i style="width:${Math.max(3, v / top * 100)}%"></i></div></div><span>${fmtN(v)}</span></div>`).join('') : '<span class="label">Урона не нанесено</span>';
+  $('overDmg').innerHTML = rows.length ? rows.map(([k, v]) => `<div class="dmr"><img src="${ICON[k]}" alt=""><div>${esc((WEAPONS[k] || EVOS[k]).name)}<div class="bar"><i style="width:${Math.max(3, v / top * 100)}%"></i></div></div><span>${fmtN(v)}</span></div>`).join('') : tr('<span class="label">Урона не нанесено</span>', '<span class="label">No damage dealt</span>');
   show('over'); refreshMenu();
 }
 function pauseGame() {
   if (mode !== 'play') return;
   mode = 'paused'; joy.id = null; joy.dx = joy.dy = 0; keys.clear();
-  $('pauseSub').textContent = fmtT(R.time) + ' · уровень ' + R.level + ' · убито ' + R.kills;
+  $('pauseSub').textContent = fmtT(R.time) + tr(' · уровень ', ' · level ') + R.level + tr(' · убито ', ' · kills ') + R.kills;
   $('pauseBuild').innerHTML = buildIcons_(R);
   show('pause'); AU.duck(true);
 }
 function resumeGame() { if (mode !== 'paused') return; show(null); mode = 'play'; last = performance.now(); AU.duck(false); }
-function surrender() { if (R && !R.over) { R.over = true; finishStats(false); } }
+function surrender() { if (R && !R.over) { R.over = true; finishStats(R.won10); } }
 function toMenu() { if (mode === 'paused') surrender(); mode = 'menu'; R = null; AU.musicStop(); $('hud').hidden = true; refreshMenu(); show('menu'); }
 
 /* =================================================================
    ЭКРАНЫ
    ================================================================= */
-const SCREENS = ['menu', 'levelup', 'chest', 'pause', 'settings', 'shop', 'codex', 'over', 'prep', 'daily'];
+const SCREENS = ['menu', 'levelup', 'chest', 'pause', 'settings', 'shop', 'codex', 'over', 'prep', 'daily', 'revive', 'adDemo'];
 let prevScreen = 'menu';
 function show(id) { for (const s of SCREENS) $(s).hidden = s !== id; }
 function refreshMenu() {
@@ -2003,21 +2113,22 @@ function renderShop() {
   $('shopList').innerHTML = META.map(m => {
     const l = SAVE.meta[m.id], maxed = l >= m.max, cost = m.cost(l);
     let pips = '<div class="lvpips">'; for (let i = 0; i < m.max; i++) pips += `<i class="${i < l ? 'on' : ''}"></i>`; pips += '</div>';
-    return `<div class="shoprow"><img src="${ICON[m.id]}" alt=""><div><b>${m.name}</b><div class="d">${m.desc} · сейчас ${l}/${m.max}</div>${pips}</div>${maxed ? '<span class="tag">Макс.</span>' : `<button class="btn gold buy" data-act="buy" data-id="${m.id}" ${SAVE.gold < cost ? 'disabled' : ''}><svg><use href="#i-coin"/></svg>${cost}</button>`}</div>`;
+    return `<div class="shoprow"><img src="${ICON[m.id]}" alt=""><div><b>${m.name}</b><div class="d">${m.desc} · ${tr('сейчас', 'now')} ${l}/${m.max}</div>${pips}</div>${maxed ? tr('<span class="tag">Макс.</span>', '<span class="tag">Max</span>') : `<button class="btn gold buy" data-act="buy" data-id="${m.id}" ${SAVE.gold < cost ? 'disabled' : ''}><svg><use href="#i-coin"/></svg>${cost}</button>`}</div>`;
   }).join('');
 }
 function buyMeta(id) { const m = META.find(x => x.id === id); if (!m) return false; const l = SAVE.meta[id]; if (l >= m.max) return false; const c = m.cost(l); if (SAVE.gold < c) return false; SAVE.gold -= c; SAVE.meta[id]++; persist(); AU.play('buy'); renderShop(); refreshMenu(); return true; }
 function renderCodex() {
-  $('cxEvo').innerHTML = COMBOS.map(c => `<div class="evrow"><img src="${ICON[c.a]}" alt=""><span class="op">+</span><img src="${ICON[c.b]}" alt=""><span class="op">=</span><img src="${ICON[c.to]}" alt=""><b>${esc(EVOS[c.to].name)} · комбо</b></div>`).join('') + Object.keys(WEAPONS).filter(id => WEAPONS[id].partner).map(id => { const W_ = WEAPONS[id], E_ = EVOS[W_.evo]; return `<div class="evrow"><img src="${ICON[id]}" alt=""><span class="op">+</span><img src="${ICON[W_.partner]}" alt=""><span class="op">=</span><img src="${ICON[W_.evo]}" alt=""><b>${esc(E_.name)}</b></div>`; }).join('');
-  $('cxW').innerHTML = Object.keys(WEAPONS).map(id => { const W_ = WEAPONS[id], ok = wUnlocked(id); return `<div class="cxi ${ok ? '' : 'lock'}"><img src="${ICON[id]}" alt=""><div><b>${esc(W_.name)}</b><span>${ok ? esc(W_.lv[0]) : 'Закрыто: ' + esc(UNLOCKS[W_.unlock].text)}</span></div></div>`; }).join('');
-  $('cxP').innerHTML = Object.keys(PASSIVES).map(id => { const P = PASSIVES[id], wid = PARTNER_OF[id]; return `<div class="cxi"><img src="${ICON[id]}" alt=""><div><b>${esc(P.name)}</b><span>${esc(P.desc)}${wid ? ' · пара для «' + esc(WEAPONS[wid].name) + '»' : ''}</span></div></div>`; }).join('');
+  $('cxEvo').innerHTML = COMBOS.map(c => `<div class="evrow"><img src="${ICON[c.a]}" alt=""><span class="op">+</span><img src="${ICON[c.b]}" alt=""><span class="op">=</span><img src="${ICON[c.to]}" alt=""><b>${esc(EVOS[c.to].name)} · ${tr('комбо', 'combo')}</b></div>`).join('') + Object.keys(WEAPONS).filter(id => WEAPONS[id].partner).map(id => { const W_ = WEAPONS[id], E_ = EVOS[W_.evo]; return `<div class="evrow"><img src="${ICON[id]}" alt=""><span class="op">+</span><img src="${ICON[W_.partner]}" alt=""><span class="op">=</span><img src="${ICON[W_.evo]}" alt=""><b>${esc(E_.name)}</b></div>`; }).join('');
+  $('cxW').innerHTML = Object.keys(WEAPONS).map(id => { const W_ = WEAPONS[id], ok = wUnlocked(id); return `<div class="cxi ${ok ? '' : 'lock'}"><img src="${ICON[id]}" alt=""><div><b>${esc(W_.name)}</b><span>${ok ? esc(W_.lv[0]) : tr('Закрыто: ', 'Locked: ') + esc(UNLOCKS[W_.unlock].text)}</span></div></div>`; }).join('');
+  $('cxP').innerHTML = Object.keys(PASSIVES).map(id => { const P = PASSIVES[id], wid = PARTNER_OF[id]; return `<div class="cxi"><img src="${ICON[id]}" alt=""><div><b>${esc(P.name)}</b><span>${esc(P.desc)}${wid ? tr(' · пара для «' + esc(WEAPONS[wid].name) + '»', ' · pairs with ' + esc(WEAPONS[wid].name)) : ''}</span></div></div>`; }).join('');
 }
 function syncSettings() {
   const s = SAVE.settings;
   for (const [id, k, o] of [['volMaster', 'master', 'oMaster'], ['volMusic', 'music', 'oMusic'], ['volSfx', 'sfx', 'oSfx']]) { $(id).value = Math.round(s[k] * 100); $(o).textContent = Math.round(s[k] * 100); }
   $('togShake').setAttribute('aria-pressed', String(!!s.shake)); $('togNums').setAttribute('aria-pressed', String(!!s.numbers)); $('togVibro').setAttribute('aria-pressed', String(!!s.vibro));
-  $('qSeg').innerHTML = [['auto', 'Авто'], ['high', 'Высокое'], ['low', 'Экономия']].map(([v, t]) => `<button data-act="q" data-v="${v}" class="${s.quality === v ? 'on' : ''}">${t}</button>`).join('');
-  $('qNote').textContent = s.quality === 'auto' ? (LOW ? 'Сейчас включена экономия: телефон не тянул эффекты' : 'Эффекты снизятся сами, если игра начнёт тормозить') : s.quality === 'low' ? 'Меньше частиц и свечения, ниже разрешение' : 'Все эффекты всегда включены';
+  $('langSeg').innerHTML = [['ru', 'RU'], ['en', 'EN']].map(([v, t]) => `<button data-act="lang" data-v="${v}" class="${LANG === v ? 'on' : ''}">${t}</button>`).join('');
+  $('qSeg').innerHTML = [['auto', tr('Авто', 'Auto')], ['high', tr('Высокое', 'High')], ['low', tr('Экономия', 'Saver')]].map(([v, t]) => `<button data-act="q" data-v="${v}" class="${s.quality === v ? 'on' : ''}">${t}</button>`).join('');
+  $('qNote').textContent = s.quality === 'auto' ? (LOW ? tr('Сейчас включена экономия: телефон не тянул эффекты', 'Saver mode is on: the device could not keep up') : tr('Эффекты снизятся сами, если игра начнёт тормозить', 'Effects are reduced automatically if the game slows down')) : s.quality === 'low' ? tr('Меньше частиц и свечения, ниже разрешение', 'Fewer particles and glow, lower resolution') : tr('Все эффекты всегда включены', 'All effects always on');
 }
 function openSub(id) { prevScreen = mode === 'paused' ? 'pause' : 'menu'; if (id === 'settings') { syncSettings(); $('resetConfirm').hidden = true; } if (id === 'shop') renderShop(); if (id === 'codex') renderCodex(); if (id === 'daily') renderDaily(); if (id === 'prep') renderPrep(); show(id); }
 function setQuality(v) { SAVE.settings.quality = v; persist(); applyQuality(v === 'low'); syncSettings(); }
@@ -2030,18 +2141,22 @@ document.addEventListener('click', ev => {
   const b = ev.target.closest && ev.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act; AU.init();
   switch (act) {
-    case 'start': AU.play('click'); openSub('prep'); break;
+    case 'start': AU.play('click'); if (SAVE.runs === 0) startRun(1, 'kunai'); else openSub('prep'); break;
     case 'go': startRun(prepCh, prepW); break;
     case 'pch': prepCh = +b.dataset.id; SAVE.lastCh = prepCh; renderPrep(); AU.play('click'); break;
     case 'pw': prepW = b.dataset.id; renderPrep(); AU.play('click'); break;
     case 'daily': AU.play('click'); openSub('daily'); break;
     case 'claim': claimDaily(+b.dataset.i); break;
     case 'q': setQuality(b.dataset.v); AU.play('click'); break;
+    case 'lang': SAVE.settings.lang = b.dataset.v; persist(); applyLang(); syncSettings(); refreshMenu(); AU.play('click'); break;
     case 'slot': slotInfo(b.dataset.k); break;
-    case 'restart': if (mode === 'paused') surrender(); startRun(R ? R.ch.id : SAVE.lastCh, R ? R.startW : SAVE.lastW); break;
+    case 'restart': { if (mode === 'paused') surrender(); const ch = R ? R.ch.id : SAVE.lastCh, w = R ? R.startW : SAVE.lastW, long = R && R.time > 45; if (mode === 'over' && long && SAVE.runs >= 2) Ads.midgame(() => startRun(ch, w)); else startRun(ch, w); break; }
+    case 'reviveYes': Ads.rewarded(() => doRevive()); break;
+    case 'reviveNo': declineRevive(); break;
+    case 'dbl': if (R && !R.adGold) Ads.rewarded(() => { if (R.adGold) return; R.adGold = true; const g = Math.round(R.gold); SAVE.gold += g; persist(); $('overGold').textContent = '+' + (g * 2) + ' ×2'; $('dblBtn').hidden = true; AU.play('buy'); refreshMenu(); }); break;
     case 'pause': pauseGame(); break;
     case 'resume': AU.play('click'); resumeGame(); break;
-    case 'menu': AU.play('click'); toMenu(); break;
+    case 'menu': AU.play('click'); if (mode === 'over' && R && R.time > 45 && SAVE.runs >= 2) Ads.midgame(toMenu); else toMenu(); break;
     case 'settings': case 'shop': case 'codex': AU.play('click'); openSub(act); break;
     case 'back': AU.play('click'); if (prevScreen === 'menu') refreshMenu(); show(prevScreen); break;
     case 'pick': if (performance.now() - luOpenedAt > 260) chooseUpgrade(+b.dataset.i); break;
@@ -2051,7 +2166,7 @@ document.addEventListener('click', ev => {
     case 'tog': { const k = b.dataset.key; SAVE.settings[k] = !SAVE.settings[k]; persist(); syncSettings(); AU.play('click'); break; }
     case 'reset': $('resetConfirm').hidden = false; break;
     case 'resetNo': $('resetConfirm').hidden = true; break;
-    case 'resetYes': { const s = SAVE.settings; SAVE = clone(DEFAULT_SAVE); SAVE.settings = s; persist(); $('resetConfirm').hidden = true; refreshMenu(); toast('Прогресс сброшен'); break; }
+    case 'resetYes': { const s = SAVE.settings; SAVE = clone(DEFAULT_SAVE); SAVE.settings = s; persist(); $('resetConfirm').hidden = true; refreshMenu(); toast(tr('Прогресс сброшен', 'Progress reset')); break; }
   }
 });
 document.addEventListener('input', ev => {
@@ -2335,7 +2450,7 @@ const setW = (id, f) => { const v = (clamp(f, 0, 1) * 100).toFixed(1) + '%'; if 
 function updateHUD() {
   if (!R || mode === 'menu') return;
   const p = R.player;
-  setT('timer', fmtT(R.time)); setT('lvl', String(R.level)); setW('xpFill', R.xp / R.xpNext);
+  setT('timer', fmtT(R.time)); setT('timerSub', R.won10 ? tr('бесконечный режим', 'endless mode') : tr('цель 10:00', 'goal 10:00')); setT('lvl', String(R.level)); setW('xpFill', R.xp / R.xpNext);
   setT('gold', fmtN(R.gold)); setT('kills', fmtN(R.kills));
   const bossOn = !!(R.boss && !R.boss.dead);
   if (hud.boss !== bossOn) { hud.boss = bossOn; $('bossBox').hidden = !bossOn; $('timerBox').classList.toggle('boss', bossOn); }
@@ -2351,8 +2466,8 @@ function updateHUD() {
 
 function slotInfo(k) {
   if (!R) return; const i = +k.slice(1);
-  if (k[0] === 'w') { const w = R.weapons[i]; if (!w) return; const W_ = WEAPONS[w.id], E_ = EVOS[w.id]; toast(E_ ? `${E_.name} · эволюция: ${E_.desc}` : `${W_.name} · ур. ${w.lvl}/5 · ${W_.partner ? 'пара: ' + PASSIVES[W_.partner].name : 'комбо с «' + WEAPONS[W_.combo || 'drone'].name + '»'}`); }
-  else { const id = R.porder[i]; if (!id) return; const wid = PARTNER_OF[id]; toast(`${PASSIVES[id].name} · ур. ${R.passives[id]}/5 · ${PASSIVES[id].desc}${wid ? ' · пара для «' + WEAPONS[wid].name + '»' : ''}`); }
+  if (k[0] === 'w') { const w = R.weapons[i]; if (!w) return; const W_ = WEAPONS[w.id], E_ = EVOS[w.id]; toast(E_ ? `${E_.name} · ${tr('эволюция', 'evolution')}: ${E_.desc}` : `${W_.name} · ${tr('ур.', 'lv.')} ${w.lvl}/5 · ${W_.partner ? tr('пара: ', 'pair: ') + PASSIVES[W_.partner].name : tr('комбо с «' + WEAPONS[W_.combo || 'drone'].name + '»', 'combo with ' + WEAPONS[W_.combo || 'drone'].name)}`); }
+  else { const id = R.porder[i]; if (!id) return; const wid = PARTNER_OF[id]; toast(`${PASSIVES[id].name} · ${tr('ур.', 'lv.')} ${R.passives[id]}/5 · ${PASSIVES[id].desc}${wid ? tr(' · пара для «' + WEAPONS[wid].name + '»', ' · pairs with ' + WEAPONS[wid].name) : ''}`); }
 }
 /* =================================================================
    ЦИКЛ
@@ -2364,24 +2479,69 @@ function frame(now) {
     const steps = dt > 1 / 45 ? 2 : 1;
     for (let i = 0; i < steps && mode === 'play'; i++) update(dt / steps);
     if (mode === 'play' && R.queue.length) openLevelUp();
+  } else if (mode === 'revive') {
+    if (!Ads.busy) { R.reviveT -= dt; const n = Math.max(0, Math.ceil(R.reviveT)); if ($('reviveCount').textContent !== String(n)) $('reviveCount').textContent = n; if (R.reviveT <= 0) declineRevive(); }
   } else if (mode === 'dying') { R.endT -= dt; R.shake = Math.max(0, R.shake - dt * 30); updateFx(dt * .6); if (R.endT <= 0) showOver(); }
   render(dt); updateHUD();
+  Ads.setPlaying(mode === 'play' && !Ads.busy && !document.hidden);
   fpsN++; fpsT += dt;
   if (fpsT >= 2) {
     const fps = fpsN / fpsT; fpsN = 0; fpsT = 0;
     if (SAVE.settings.quality === 'auto' && mode === 'play') {
-      if (!LOW && fps < 42) { applyQuality(true); toast('Включён режим экономии: меньше эффектов, выше скорость'); }
+      if (!LOW && fps < 42) { applyQuality(true); toast(tr('Включён режим экономии: меньше эффектов, выше скорость', 'Saver mode on: fewer effects, smoother play')); }
       else if (LOW && fps > 58) { goodWin++; if (goodWin >= 4) { goodWin = 0; applyQuality(false); } } else goodWin = 0;
     }
   }
 }
 let fpsN = 0, fpsT = 0, goodWin = 0;
 
-LOW = SAVE.settings.quality === 'low'; ensureDaily();
-resize(); buildSprites(); refreshMenu(); syncSettings(); show('menu');
-last = performance.now(); requestAnimationFrame(frame);
+const RU_STORE = new Map();
+function swapField(obj, key) {
+  let st = RU_STORE.get(obj); if (!st) { st = {}; RU_STORE.set(obj, st); }
+  if (!(key in st)) st[key] = obj[key];
+  const ru = st[key], en = LANG === 'en';
+  obj[key] = Array.isArray(ru) ? ru.map(x => en ? DICT[x] || x : x) : (en ? DICT[ru] || ru : ru);
+}
+const RU_NODES = new WeakMap(), RU_ATTR = new WeakMap();
+function translateDom() {
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const cyr = /[А-Яа-яЁё]/;
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+    if (n.parentNode && n.parentNode.nodeName === 'SCRIPT') continue;
+    let ru = RU_NODES.get(n);
+    if (ru === undefined) { if (!cyr.test(n.nodeValue)) continue; ru = n.nodeValue; RU_NODES.set(n, ru); }
+    const key = ru.trim(), en = DICT[key];
+    n.nodeValue = LANG === 'en' && en ? ru.replace(key, en) : ru;
+  }
+  for (const el of document.querySelectorAll('[aria-label]')) {
+    let ru = RU_ATTR.get(el); if (ru === undefined) { ru = el.getAttribute('aria-label'); RU_ATTR.set(el, ru); }
+    el.setAttribute('aria-label', LANG === 'en' && DICT[ru] ? DICT[ru] : ru);
+  }
+}
+function applyLang() {
+  const nav = (navigator.language || 'en').toLowerCase();
+  LANG = SAVE.settings.lang || (/^(ru|uk|be|kk)/.test(nav) ? 'ru' : 'en');
+  document.documentElement.lang = LANG;
+  for (const k in WEAPONS) { swapField(WEAPONS[k], 'name'); swapField(WEAPONS[k], 'lv'); }
+  for (const k in EVOS) { swapField(EVOS[k], 'name'); swapField(EVOS[k], 'desc'); }
+  for (const k in PASSIVES) { swapField(PASSIVES[k], 'name'); swapField(PASSIVES[k], 'desc'); }
+  for (const k in UNLOCKS) swapField(UNLOCKS[k], 'text');
+  for (const m of META) { swapField(m, 'name'); swapField(m, 'desc'); }
+  for (const k in ET) swapField(ET[k], 'name');
+  for (const c of CHAPTERS) { swapField(c, 'name'); swapField(c, 'desc'); }
+  translateDom();
+}
+async function boot() {
+  LOW = SAVE.settings.quality === 'low'; ensureDaily();
+  resize(); buildSprites(); applyLang(); refreshMenu(); syncSettings(); show('menu');
+  last = performance.now(); requestAnimationFrame(frame);
+  await Ads.init();
+  if (Ads.cloud()) { SAVE = loadSave(); LOW = SAVE.settings.quality === 'low'; ensureDaily(); applyLang(); refreshMenu(); syncSettings(); }
+  Ads.loadingStop();
+}
+boot();
 
-window.__S10 = { startRun, update, chooseUpgrade, reroll, openLevelUp, closeChest, revealChest, endRun, showOver, pauseGame, resumeGame, toMenu, buyMeta, rollOptions, render, evoReady,
+window.__S10 = { offerRevive, doRevive, declineRevive, reach10, endlessEvent, Ads, applyLang, setLang: l => { SAVE.settings.lang = l; applyLang(); }, startRun, update, chooseUpgrade, reroll, openLevelUp, closeChest, revealChest, endRun, showOver, pauseGame, resumeGame, toMenu, buyMeta, rollOptions, render, evoReady,
   claimDaily, setQuality, renderPrep, slotInfo, get LOW() { return LOW; }, ensureDaily,
   get R() { return R; }, get mode() { return mode; }, get SAVE() { return SAVE; }, get opts() { return curOpts; }, keys, WEAPONS, PASSIVES };
 })();
